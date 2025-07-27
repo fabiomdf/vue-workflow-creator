@@ -100,7 +100,7 @@ const getAnchorPosition = (shapeId: string, anchor: AnchorPoint): ConnectionPoin
   }
 
   const { position, style } = shape
-  
+
   switch (anchor) {
     case 'top':
       return {

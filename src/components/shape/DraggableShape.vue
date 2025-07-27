@@ -307,11 +307,6 @@ defineExpose({
   pointer-events: auto;
 }
 
-.anchor-point:hover {
-  background-color: #dc2626;
-  transform: scale(1.2);
-}
-
 /* Anchor point positions - center of each edge */
 .anchor-point-top {
   top: -6px;
