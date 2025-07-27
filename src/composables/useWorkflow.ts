@@ -22,6 +22,27 @@ export function useWorkflow() {
     console.log(`Shape ${shapeId} clicked at:`, position)
   }
 
+  const onShapeResizeStart = (shapeId: string, size: { width: number; height: number }) => {
+    console.log(`Shape ${shapeId} resize started:`, size)
+  }
+
+  const onShapeResizeMove = (shapeId: string, size: { width: number; height: number }) => {
+    const shape = workflowService.getShape(shapeId)
+    if (shape) {
+      shape.style.width = size.width
+      shape.style.height = size.height
+    }
+  }
+
+  const onShapeResizeEnd = (shapeId: string, size: { width: number; height: number }) => {
+    const shape = workflowService.getShape(shapeId)
+    if (shape) {
+      shape.style.width = size.width
+      shape.style.height = size.height
+    }
+    console.log(`Shape ${shapeId} resize ended:`, size)
+  }
+
   // Actions
   const addShape = (type?: ShapeType, position?: Position) => {
     return workflowService.addShape(type, position)
@@ -48,6 +69,9 @@ export function useWorkflow() {
     onShapeDragMove,
     onShapeDragEnd,
     onShapeClick,
+    onShapeResizeStart,
+    onShapeResizeMove,
+    onShapeResizeEnd,
 
     // Actions
     addShape,

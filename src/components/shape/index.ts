@@ -7,7 +7,9 @@ export type * from './types'
 // Services
 export { ShapeConfigService } from './services/ShapeConfigService'
 export { DragBehavior } from './services/DragBehavior'
+export { ResizeBehavior } from './services/ResizeBehavior'
 export { PositionManager } from './services/PositionManager'
+export { SizeManager } from './services/SizeManager'
 export { StyleManager } from './services/StyleManager'
 export { EventHandlerFactory } from './services/EventHandler'
 

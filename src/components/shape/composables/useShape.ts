@@ -1,122 +1,197 @@
 import { ref, computed, onUnmounted } from 'vue'
-import type { Position, ShapeProps } from '../types'
+import type { Position, ShapeProps, ResizeHandle } from '../types'
 import { DragBehavior } from '../services/DragBehavior'
+import { ResizeBehavior } from '../services/ResizeBehavior'
 import { PositionManager } from '../services/PositionManager'
+import { SizeManager } from '../services/SizeManager'
 import { EventHandlerFactory } from '../services/EventHandler'
-import type { IDragBehavior, IPositionManager, IEventHandler } from '../interfaces'
+import type { IDragBehavior, IResizeBehavior, IPositionManager, ISizeManager, IEventHandler } from '../interfaces'
 
 export function useShape(
-    props: ShapeProps,
-    emit: (event: 'dragStart' | 'dragMove' | 'dragEnd' | 'click', position: Position) => void
+  props: ShapeProps,
+  emit: (event: 'dragStart' | 'dragMove' | 'dragEnd' | 'click' | 'resizeStart' | 'resizeMove' | 'resizeEnd', data: Position | { width: number; height: number }) => void
 ) {
-    // Initialize services
-    const positionManager: IPositionManager = new PositionManager({
-        x: props.initialX || 100,
-        y: props.initialY || 100
-    })
+  // Initialize services
+  const positionManager: IPositionManager = new PositionManager({
+    x: props.initialX || 100,
+    y: props.initialY || 100
+  })
 
-    const dragBehavior: IDragBehavior = new DragBehavior()
+  const sizeManager: ISizeManager = new SizeManager({
+    width: props.width || 120,
+    height: props.height || 80
+  })
 
-    const eventHandler: IEventHandler = EventHandlerFactory.create(
-        (position: Position) => emit('dragStart', position),
-        (position: Position) => emit('dragMove', position),
-        (position: Position) => emit('dragEnd', position),
-        (position: Position) => emit('click', position)
-    )
+  const dragBehavior: IDragBehavior = new DragBehavior()
+  const resizeBehavior: IResizeBehavior = new ResizeBehavior()
 
-    // Reactive state
-    const shapeElement = ref<HTMLElement>()
-    const isDragging = computed(() => dragBehavior.isDragging)
-    const position = computed(() => positionManager.getPosition())
+  const eventHandler: IEventHandler = EventHandlerFactory.create(
+    (position: Position) => emit('dragStart', position),
+    (position: Position) => emit('dragMove', position),
+    (position: Position) => emit('dragEnd', position),
+    (position: Position) => emit('click', position),
+    (size: { width: number; height: number }) => emit('resizeStart', size),
+    (size: { width: number; height: number }) => emit('resizeMove', size),
+    (size: { width: number; height: number }) => emit('resizeEnd', size)
+  )
 
-    // Style management - simplified approach
-    const shapeStyle = computed(() => ({
-        left: `${position.value.x}px`,
-        top: `${position.value.y}px`,
-        width: `${props.width || 120}px`,
-        height: `${props.height || 80}px`,
-        backgroundColor: props.backgroundColor || '#4f46e5',
-        borderColor: props.borderColor || '#312e81',
-        borderRadius: `${props.borderRadius || 8}px`,
-        cursor: props.disabled ? 'default' : (isDragging.value ? 'grabbing' : 'grab')
-    }))
+  // Reactive state
+  const shapeElement = ref<HTMLElement>()
+  const isDragging = computed(() => dragBehavior.isDragging)
+  const isResizing = computed(() => resizeBehavior.isResizing)
+  const position = computed(() => positionManager.getPosition())
+  const size = computed(() => sizeManager.getSize())
 
-    // Drag handling
-    const startDrag = (event: MouseEvent | TouchEvent) => {
-        if (props.disabled) return
+  // Style management
+  const shapeStyle = computed(() => ({
+    left: `${position.value.x}px`,
+    top: `${position.value.y}px`,
+    width: `${size.value.width}px`,
+    height: `${size.value.height}px`,
+    backgroundColor: props.backgroundColor || '#4f46e5',
+    borderColor: props.borderColor || '#312e81',
+    borderRadius: `${props.borderRadius || 8}px`,
+    cursor: props.disabled ? 'default' : (isDragging.value ? 'grabbing' : (isResizing.value ? 'resizing' : 'grab'))
+  }))
 
-        const currentPosition = positionManager.getPosition()
-        const dragState = dragBehavior.startDrag(event, currentPosition)
+  // Drag handling
+  const startDrag = (event: MouseEvent | TouchEvent) => {
+    if (props.disabled || isResizing.value) return
 
-        eventHandler.onDragStart(currentPosition)
+    const currentPosition = positionManager.getPosition()
+    const dragState = dragBehavior.startDrag(event, currentPosition)
 
-        // Setup drag event listeners
-        const handleDragMove = (moveEvent: MouseEvent | TouchEvent) => {
-            if (dragBehavior.isDragging) {
-                const newPosition = dragBehavior.handleDrag(moveEvent, dragState)
-                if (newPosition.x !== 0 || newPosition.y !== 0) {
-                    positionManager.setPosition(newPosition)
-                    eventHandler.onDragMove(newPosition)
-                }
-            }
+    eventHandler.onDragStart(currentPosition)
+
+    // Setup drag event listeners
+    const handleDragMove = (moveEvent: MouseEvent | TouchEvent) => {
+      if (dragBehavior.isDragging) {
+        const newPosition = dragBehavior.handleDrag(moveEvent, dragState)
+        if (newPosition.x !== 0 || newPosition.y !== 0) {
+          positionManager.setPosition(newPosition)
+          eventHandler.onDragMove(newPosition)
+        }
+      }
+    }
+
+    const handleDragEnd = () => {
+      if (dragBehavior.isDragging) {
+        const finalPosition = positionManager.getPosition()
+        dragBehavior.stopDrag()
+        eventHandler.onDragEnd(finalPosition)
+
+        // Cleanup
+        document.removeEventListener('mousemove', handleDragMove)
+        document.removeEventListener('mouseup', handleDragEnd)
+        document.removeEventListener('touchmove', handleDragMove)
+        document.removeEventListener('touchend', handleDragEnd)
+      }
+    }
+
+    // Add listeners
+    document.addEventListener('mousemove', handleDragMove)
+    document.addEventListener('mouseup', handleDragEnd)
+    document.addEventListener('touchmove', handleDragMove)
+    document.addEventListener('touchend', handleDragEnd)
+  }
+
+  // Resize handling
+  const startResize = (event: MouseEvent | TouchEvent, handle: ResizeHandle) => {
+    if (props.disabled || !props.resizable) return
+
+    const currentSize = sizeManager.getSize()
+    const currentPosition = positionManager.getPosition()
+    const resizeState = resizeBehavior.startResize(event, handle, currentSize, currentPosition)
+
+    eventHandler.onResizeStart(currentSize)
+
+    // Setup resize event listeners
+    const handleResizeMove = (moveEvent: MouseEvent | TouchEvent) => {
+      if (resizeBehavior.isResizing) {
+        const constraints = {
+          minWidth: props.minWidth || 50,
+          minHeight: props.minHeight || 30,
+          maxWidth: props.maxWidth || 500,
+          maxHeight: props.maxHeight || 300
         }
 
-        const handleDragEnd = () => {
-            if (dragBehavior.isDragging) {
-                const finalPosition = positionManager.getPosition()
-                dragBehavior.stopDrag()
-                eventHandler.onDragEnd(finalPosition)
-
-                // Cleanup
-                document.removeEventListener('mousemove', handleDragMove)
-                document.removeEventListener('mouseup', handleDragEnd)
-                document.removeEventListener('touchmove', handleDragMove)
-                document.removeEventListener('touchend', handleDragEnd)
-            }
-        }
-
-        // Add listeners
-        document.addEventListener('mousemove', handleDragMove)
-        document.addEventListener('mouseup', handleDragEnd)
-        document.addEventListener('touchmove', handleDragMove)
-        document.addEventListener('touchend', handleDragEnd)
+        const result = resizeBehavior.handleResize(moveEvent, resizeState, constraints)
+        sizeManager.setSize(result.size)
+        positionManager.setPosition(result.position)
+        eventHandler.onResizeMove(result.size)
+      }
     }
 
-    const handleClick = () => {
-        if (!isDragging.value && !props.disabled) {
-            eventHandler.onClick(positionManager.getPosition())
-        }
+    const handleResizeEnd = () => {
+      if (resizeBehavior.isResizing) {
+        const finalSize = sizeManager.getSize()
+        resizeBehavior.stopResize()
+        eventHandler.onResizeEnd(finalSize)
+
+        // Cleanup
+        document.removeEventListener('mousemove', handleResizeMove)
+        document.removeEventListener('mouseup', handleResizeEnd)
+        document.removeEventListener('touchmove', handleResizeMove)
+        document.removeEventListener('touchend', handleResizeEnd)
+      }
     }
 
-    // Cleanup on unmount
-    onUnmounted(() => {
-        dragBehavior.cleanup()
-    })
+    // Add listeners
+    document.addEventListener('mousemove', handleResizeMove)
+    document.addEventListener('mouseup', handleResizeEnd)
+    document.addEventListener('touchmove', handleResizeMove)
+    document.addEventListener('touchend', handleResizeEnd)
+  }
 
-    // Expose methods for external control
-    const setPosition = (newPosition: Position) => {
-        positionManager.setPosition(newPosition)
+  const handleClick = () => {
+    if (!isDragging.value && !isResizing.value && !props.disabled) {
+      eventHandler.onClick(positionManager.getPosition())
     }
+  }
 
-    const getPosition = () => {
-        return positionManager.getPosition()
-    }
+  // Cleanup on unmount
+  onUnmounted(() => {
+    dragBehavior.cleanup()
+    resizeBehavior.cleanup()
+  })
 
-    return {
-        // Refs
-        shapeElement,
+  // Expose methods for external control
+  const setPosition = (newPosition: Position) => {
+    positionManager.setPosition(newPosition)
+  }
 
-        // Computed properties
-        position,
-        isDragging,
-        shapeStyle,
+  const getPosition = () => {
+    return positionManager.getPosition()
+  }
 
-        // Event handlers
-        startDrag,
-        handleClick,
+  const setSize = (newSize: { width: number; height: number }) => {
+    sizeManager.setSize(newSize)
+  }
 
-        // Methods
-        setPosition,
-        getPosition
-    }
+  const getSize = () => {
+    return sizeManager.getSize()
+  }
+
+  return {
+    // Refs
+    shapeElement,
+
+    // Computed properties
+    position,
+    size,
+    isDragging,
+    isResizing,
+    shapeStyle,
+
+    // Event handlers
+    startDrag,
+    startResize,
+    handleClick,
+
+    // Methods
+    setPosition,
+    getPosition,
+    setSize,
+    getSize
+  }
 }

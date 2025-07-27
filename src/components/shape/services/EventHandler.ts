@@ -6,7 +6,10 @@ export class ShapeEventHandler implements IEventHandler {
     private emitDragStart: (position: Position) => void,
     private emitDragMove: (position: Position) => void,
     private emitDragEnd: (position: Position) => void,
-    private emitClick: (position: Position) => void
+    private emitClick: (position: Position) => void,
+    private emitResizeStart: (size: { width: number; height: number }) => void,
+    private emitResizeMove: (size: { width: number; height: number }) => void,
+    private emitResizeEnd: (size: { width: number; height: number }) => void
   ) { }
 
   onDragStart(position: Position): void {
@@ -28,9 +31,23 @@ export class ShapeEventHandler implements IEventHandler {
     this.logEvent('Click', position)
   }
 
-  private logEvent(eventType: string, position: Position): void {
+  onResizeStart(size: { width: number; height: number }): void {
+    this.emitResizeStart(size)
+    this.logEvent('Resize Start', size)
+  }
+
+  onResizeMove(size: { width: number; height: number }): void {
+    this.emitResizeMove(size)
+  }
+
+  onResizeEnd(size: { width: number; height: number }): void {
+    this.emitResizeEnd(size)
+    this.logEvent('Resize End', size)
+  }
+
+  private logEvent(eventType: string, data: Position | { width: number; height: number }): void {
     if (import.meta.env.DEV) {
-      console.log(`Shape ${eventType}:`, position)
+      console.log(`Shape ${eventType}:`, data)
     }
   }
 }
@@ -41,8 +58,19 @@ export class EventHandlerFactory {
     emitDragStart: (position: Position) => void,
     emitDragMove: (position: Position) => void,
     emitDragEnd: (position: Position) => void,
-    emitClick: (position: Position) => void
+    emitClick: (position: Position) => void,
+    emitResizeStart: (size: { width: number; height: number }) => void,
+    emitResizeMove: (size: { width: number; height: number }) => void,
+    emitResizeEnd: (size: { width: number; height: number }) => void
   ): IEventHandler {
-    return new ShapeEventHandler(emitDragStart, emitDragMove, emitDragEnd, emitClick)
+    return new ShapeEventHandler(
+      emitDragStart,
+      emitDragMove,
+      emitDragEnd,
+      emitClick,
+      emitResizeStart,
+      emitResizeMove,
+      emitResizeEnd
+    )
   }
 }
