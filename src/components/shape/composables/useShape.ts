@@ -189,6 +189,13 @@ export function useShape(
     emit('anchorModeToggle', isAnchorMode.value)
   }
 
+  const disableAnchorMode = () => {
+    if (isAnchorMode.value) {
+      isAnchorMode.value = false
+      emit('anchorModeToggle', false)
+    }
+  }
+
   const handleAnchorClick = (anchor: 'top' | 'right' | 'bottom' | 'left') => {
     if (!props.id) {
       console.warn('Shape ID is required for anchor connections')
@@ -278,6 +285,7 @@ export function useShape(
     handleClick,
     handleContextMenu,
     toggleAnchorMode,
+    disableAnchorMode,
     handleAnchorClick,
 
     // Methods

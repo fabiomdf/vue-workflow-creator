@@ -21,7 +21,7 @@
           :target-position="getAnchorPosition(connection.targetShapeId, connection.targetAnchor)" />
 
         <!-- Shapes Layer -->
-        <DraggableShape v-for="shape in shapes" :key="shape.id" :id="shape.id" :initial-x="shape.position.x"
+        <DraggableShape v-for="shape in shapes" :key="shape.id" :ref="(el) => setShapeRef(shape.id, el)" :id="shape.id" :initial-x="shape.position.x"
           :initial-y="shape.position.y" :label="shape.label" :width="shape.style.width" :height="shape.style.height"
           :shape-geometry="shape.geometry || 'rectangle'" :background-color="shape.style.backgroundColor"
           :border-color="shape.style.borderColor" :border-radius="shape.style.borderRadius" :resizable="true"
@@ -48,6 +48,28 @@ import { useConnections } from '@/composables/useConnections'
 import type { ShapeType, AnchorPoint, ConnectionPoint } from '@/components/shape/types'
 
 const canvasRef = ref<HTMLElement>()
+
+// Store refs to all shape components
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const shapeRefs = ref<Map<string, any>>(new Map())
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const setShapeRef = (shapeId: string, el: any) => {
+  if (el) {
+    shapeRefs.value.set(shapeId, el)
+  } else {
+    shapeRefs.value.delete(shapeId)
+  }
+}
+
+// Function to disable anchor mode on all shapes
+const disableAllAnchorModes = () => {
+  shapeRefs.value.forEach((shapeRef) => {
+    if (shapeRef && typeof shapeRef.disableAnchorMode === 'function') {
+      shapeRef.disableAnchorMode()
+    }
+  })
+}
 
 const {
   shapes,
@@ -85,7 +107,11 @@ const onShapeAnchorClick = (shapeId: string, anchor: AnchorPoint, position: Conn
 
   if (isConnecting.value) {
     // Complete the connection
-    completeConnection(shapeId, anchor)
+    const connection = completeConnection(shapeId, anchor)
+    if (connection) {
+      // Disable anchor mode on all shapes after successful connection
+      disableAllAnchorModes()
+    }
   } else {
     // Start a new connection
     startConnection(shapeId, anchor, position)
@@ -129,6 +155,7 @@ const getAnchorPosition = (shapeId: string, anchor: AnchorPoint): ConnectionPoin
 
 // Clear all shapes and connections
 const clearAll = () => {
+  disableAllAnchorModes() // Disable anchor mode on all shapes first
   clearShapes()
   clearAllConnections()
   console.log('🧹 Cleared all shapes and connections')

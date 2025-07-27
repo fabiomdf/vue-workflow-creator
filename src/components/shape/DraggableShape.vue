@@ -132,6 +132,7 @@ const {
   handleClick,
   handleContextMenu,
   handleAnchorClick,
+  disableAnchorMode,
   setPosition,
   getPosition,
   setSize,
@@ -145,7 +146,8 @@ defineExpose({
   setPosition,
   getPosition,
   setSize,
-  getSize
+  getSize,
+  disableAnchorMode
 })
 </script>
 
