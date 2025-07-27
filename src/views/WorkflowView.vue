@@ -1,0 +1,139 @@
+<template>
+  <div class="workflow-canvas">
+    <div class="toolbar">
+      <h1>Vue Workflow Creator</h1>
+      <button @click="() => addShape()" class="add-shape-btn">Add Shape</button>
+      <button @click="() => clearShapes()" class="clear-btn">Clear All</button>
+      <span class="shape-count">Shapes: {{ shapes.length }}</span>
+    </div>
+
+    <div class="canvas" ref="canvasRef">
+      <DraggableShape v-for="shape in shapes" :key="shape.id" :initial-x="shape.position.x"
+        :initial-y="shape.position.y" :label="shape.label" :width="shape.style.width" :height="shape.style.height"
+        :background-color="shape.style.backgroundColor" :border-color="shape.style.borderColor"
+        :border-radius="shape.style.borderRadius" @drag-start="onShapeDragStart(shape.id, $event)"
+        @drag-move="onShapeDragMove(shape.id, $event)" @drag-end="onShapeDragEnd(shape.id, $event)"
+        @click="onShapeClick(shape.id, $event)">
+        <div class="custom-shape-content">
+          <div class="shape-title">{{ shape.label }}</div>
+          <div class="shape-subtitle">{{ shape.type }}</div>
+        </div>
+      </DraggableShape>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import { DraggableShape } from '@/components/shape'
+import { useWorkflow } from '@/composables/useWorkflow'
+
+const canvasRef = ref<HTMLElement>()
+
+const {
+  shapes,
+  onShapeDragStart,
+  onShapeDragMove,
+  onShapeDragEnd,
+  onShapeClick,
+  addShape,
+  clearShapes,
+  addRandomShapes
+} = useWorkflow()
+
+// Add some initial shapes
+addRandomShapes(3)
+</script>
+
+<style scoped>
+.workflow-canvas {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8fafc;
+}
+
+.toolbar {
+  background: white;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.toolbar h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-right: auto;
+}
+
+.add-shape-btn,
+.clear-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-shape-btn {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.add-shape-btn:hover {
+  background-color: #2563eb;
+}
+
+.clear-btn {
+  background-color: #ef4444;
+  color: white;
+}
+
+.clear-btn:hover {
+  background-color: #dc2626;
+}
+
+.shape-count {
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.canvas {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background-image:
+    linear-gradient(#e2e8f0 1px, transparent 1px),
+    linear-gradient(90deg, #e2e8f0 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.custom-shape-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: white;
+  text-align: center;
+}
+
+.shape-title {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.shape-subtitle {
+  font-size: 12px;
+  opacity: 0.9;
+}
+</style>
