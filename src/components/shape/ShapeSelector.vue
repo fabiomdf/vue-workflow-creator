@@ -131,12 +131,14 @@ const selectShape = (shapeType: ShapeType) => {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     padding: 8px;
     border: 1px solid #e2e8f0;
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s ease;
     background: white;
+    text-align: center;
 }
 
 .shape-item:hover {
@@ -154,6 +156,17 @@ const selectShape = (shapeType: ShapeType) => {
     justify-content: center;
     margin-bottom: 4px;
     position: relative;
+    /* Força centralização perfeita */
+    text-align: center;
+}
+
+/* Garantir que o ShapeRenderer fique centralizado */
+.shape-preview > * {
+    margin: 0 auto;
+    display: block;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
 }
 
 .shape-label {
@@ -162,6 +175,9 @@ const selectShape = (shapeType: ShapeType) => {
     text-align: center;
     line-height: 1.2;
     word-break: break-word;
+    width: 100%;
+    display: block;
+    margin-top: 2px;
 }
 
 /* Custom scrollbar */
