@@ -3,7 +3,7 @@
     <div class="toolbar">
       <h1>Vue Workflow Creator</h1>
       <button @click="() => addShape()" class="add-shape-btn">Add Random Shape</button>
-      <button @click="() => clearShapes()" class="clear-btn">Clear All</button>
+      <button @click="() => clearAll()" class="clear-btn">Clear All</button>
       <span class="shape-count">Shapes: {{ shapes.length }}</span>
     </div>
 
@@ -68,7 +68,8 @@ const {
   connections,
   isConnecting,
   startConnection,
-  completeConnection
+  completeConnection,
+  clearAllConnections
 } = useConnections()
 
 // Handle shape selection from the selector
@@ -99,7 +100,7 @@ const getAnchorPosition = (shapeId: string, anchor: AnchorPoint): ConnectionPoin
   }
 
   const { position, style } = shape
-
+  
   switch (anchor) {
     case 'top':
       return {
@@ -126,7 +127,12 @@ const getAnchorPosition = (shapeId: string, anchor: AnchorPoint): ConnectionPoin
   }
 }
 
-// Add some initial shapes
+// Clear all shapes and connections
+const clearAll = () => {
+  clearShapes()
+  clearAllConnections()
+  console.log('🧹 Cleared all shapes and connections')
+}// Add some initial shapes
 addRandomShapes(3)
 </script>
 
