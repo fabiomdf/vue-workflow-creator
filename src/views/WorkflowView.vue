@@ -10,11 +10,12 @@
     <div class="canvas" ref="canvasRef">
       <DraggableShape v-for="shape in shapes" :key="shape.id" :initial-x="shape.position.x"
         :initial-y="shape.position.y" :label="shape.label" :width="shape.style.width" :height="shape.style.height"
-        :background-color="shape.style.backgroundColor" :border-color="shape.style.borderColor"
-        :border-radius="shape.style.borderRadius" :resizable="true" @drag-start="onShapeDragStart(shape.id, $event)"
-        @drag-move="onShapeDragMove(shape.id, $event)" @drag-end="onShapeDragEnd(shape.id, $event)"
-        @click="onShapeClick(shape.id, $event)" @resize-start="onShapeResizeStart(shape.id, $event)"
-        @resize-move="onShapeResizeMove(shape.id, $event)" @resize-end="onShapeResizeEnd(shape.id, $event)">
+        :shape-geometry="shape.geometry || 'rectangle'" :background-color="shape.style.backgroundColor"
+        :border-color="shape.style.borderColor" :border-radius="shape.style.borderRadius" :resizable="true"
+        @drag-start="onShapeDragStart(shape.id, $event)" @drag-move="onShapeDragMove(shape.id, $event)"
+        @drag-end="onShapeDragEnd(shape.id, $event)" @click="onShapeClick(shape.id, $event)"
+        @resize-start="onShapeResizeStart(shape.id, $event)" @resize-move="onShapeResizeMove(shape.id, $event)"
+        @resize-end="onShapeResizeEnd(shape.id, $event)">
         <div class="custom-shape-content">
           <div class="shape-title">{{ shape.label }}</div>
           <div class="shape-subtitle">{{ shape.type }}</div>

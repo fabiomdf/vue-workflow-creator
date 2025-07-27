@@ -37,12 +37,14 @@ export class WorkflowService implements IWorkflowService {
             position: defaultPosition,
             label: `${shapeType} ${this.shapeCounter}`,
             type: shapeType,
+            geometry: config.geometry,
             style: {
                 width: config.defaultWidth || 140,
                 height: config.defaultHeight || 80,
                 backgroundColor: config.backgroundColor,
                 borderColor: config.borderColor,
-                borderRadius: 8
+                borderRadius: 8,
+                shape: config.geometry
             }
         }
 

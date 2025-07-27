@@ -48,9 +48,7 @@ export function useShape(
     top: `${position.value.y}px`,
     width: `${size.value.width}px`,
     height: `${size.value.height}px`,
-    backgroundColor: props.backgroundColor || '#4f46e5',
-    borderColor: props.borderColor || '#312e81',
-    borderRadius: `${props.borderRadius || 8}px`,
+    // Remove background and border - let ShapeRenderer handle the visual
     cursor: props.disabled ? 'default' : (isDragging.value ? 'grabbing' : (isResizing.value ? 'resizing' : 'grab'))
   }))
 

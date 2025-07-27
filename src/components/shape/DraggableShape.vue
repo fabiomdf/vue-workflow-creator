@@ -1,7 +1,14 @@
 <template>
   <div ref="shapeElement" class="draggable-shape" :class="{ dragging: isDragging, resizing: isResizing }"
     :style="shapeStyle" @mousedown="startDrag" @touchstart="startDrag" @click="handleClick">
-    <div class="shape-content">
+
+    <!-- Shape Renderer -->
+    <ShapeRenderer :geometry="shapeGeometry || 'rectangle'" :width="size.width" :height="size.height"
+      :background-color="backgroundColor || '#4f46e5'" :border-color="borderColor || '#312e81'"
+      :border-radius="borderRadius || 8" />
+
+    <!-- Content Overlay -->
+    <div class="shape-content-overlay">
       <slot>
         <div class="default-shape">
           {{ label || 'Shape' }}
@@ -37,6 +44,7 @@
 <script setup lang="ts">
 import type { ShapeProps, ShapeEvents, Position } from './types'
 import { useShape } from './composables/useShape'
+import ShapeRenderer from './ShapeRenderer.vue'
 
 const props = withDefaults(defineProps<ShapeProps>(), {
   initialX: 100,
@@ -44,6 +52,7 @@ const props = withDefaults(defineProps<ShapeProps>(), {
   label: 'Shape',
   width: 120,
   height: 80,
+  shapeGeometry: 'rectangle',
   backgroundColor: '#4f46e5',
   borderColor: '#312e81',
   borderRadius: 8,
@@ -114,44 +123,51 @@ defineExpose({
 <style scoped>
 .draggable-shape {
   position: absolute;
-  border: 2px solid;
   display: flex;
   align-items: center;
   justify-content: center;
   user-select: none;
   transition: box-shadow 0.2s ease;
   z-index: 1;
+  /* Remove any background - let ShapeRenderer handle the visual */
+  background: transparent;
+  border: none;
 }
 
 .draggable-shape:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  /* Keep shadow but no background */
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
 }
 
 .draggable-shape.dragging {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.3));
   z-index: 1000;
 }
 
 .draggable-shape.resizing {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.3));
   z-index: 1000;
 }
 
-.shape-content {
+.shape-content-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: none;
+  z-index: 2;
 }
 
 .default-shape {
-  color: white;
-  font-weight: 600;
   font-size: 14px;
+  font-weight: 500;
+  color: white;
   text-align: center;
-  padding: 4px;
+  pointer-events: none;
 }
 
 /* Resize handles */
