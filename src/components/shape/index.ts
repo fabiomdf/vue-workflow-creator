@@ -1,5 +1,7 @@
 // Components
 export { default as DraggableShape } from './DraggableShape.vue'
+export { default as ShapeRenderer } from './ShapeRenderer.vue'
+export { default as ShapeSelector } from './ShapeSelector.vue'
 
 // Types
 export type * from './types'

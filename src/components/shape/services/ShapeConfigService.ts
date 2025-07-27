@@ -9,7 +9,7 @@ export class ShapeConfigService {
       borderColor: '#1e40af',
       defaultWidth: 140,
       defaultHeight: 80,
-      description: 'Processo ou tarefa',
+      description: 'Process or task',
       category: 'process'
     },
     Decision: {
@@ -19,7 +19,7 @@ export class ShapeConfigService {
       borderColor: '#b91c1c',
       defaultWidth: 120,
       defaultHeight: 100,
-      description: 'Ponto de decisão',
+      description: 'Decision point',
       category: 'decision'
     },
     Data: {
@@ -29,7 +29,7 @@ export class ShapeConfigService {
       borderColor: '#047857',
       defaultWidth: 130,
       defaultHeight: 70,
-      description: 'Entrada ou saída de dados',
+      description: 'Data input or output',
       category: 'data'
     },
     Terminal: {
@@ -39,7 +39,7 @@ export class ShapeConfigService {
       borderColor: '#6d28d9',
       defaultWidth: 160,
       defaultHeight: 80,
-      description: 'Início ou fim do processo',
+      description: 'Start or end of process',
       category: 'flow'
     },
     Document: {
@@ -49,7 +49,7 @@ export class ShapeConfigService {
       borderColor: '#d97706',
       defaultWidth: 140,
       defaultHeight: 90,
-      description: 'Documento ou relatório',
+      description: 'Document or report',
       category: 'data'
     },
     Database: {
@@ -59,7 +59,7 @@ export class ShapeConfigService {
       borderColor: '#0891b2',
       defaultWidth: 120,
       defaultHeight: 100,
-      description: 'Banco de dados',
+      description: 'Database',
       category: 'data'
     },
     Connector: {
@@ -69,7 +69,7 @@ export class ShapeConfigService {
       borderColor: '#475569',
       defaultWidth: 60,
       defaultHeight: 60,
-      description: 'Conector ou junção',
+      description: 'Connector or junction',
       category: 'connector'
     },
     Preparation: {
@@ -79,7 +79,7 @@ export class ShapeConfigService {
       borderColor: '#be185d',
       defaultWidth: 140,
       defaultHeight: 80,
-      description: 'Preparação ou configuração',
+      description: 'Preparation or setup',
       category: 'process'
     },
     ManualOperation: {
@@ -89,7 +89,7 @@ export class ShapeConfigService {
       borderColor: '#65a30d',
       defaultWidth: 130,
       defaultHeight: 80,
-      description: 'Operação manual',
+      description: 'Manual operation',
       category: 'process'
     },
     Delay: {
@@ -99,7 +99,7 @@ export class ShapeConfigService {
       borderColor: '#ea580c',
       defaultWidth: 120,
       defaultHeight: 60,
-      description: 'Delay ou espera',
+      description: 'Delay or wait',
       category: 'flow'
     },
     StoredData: {
@@ -109,7 +109,7 @@ export class ShapeConfigService {
       borderColor: '#0891b2',
       defaultWidth: 100,
       defaultHeight: 80,
-      description: 'Dados armazenados',
+      description: 'Stored data',
       category: 'data'
     },
     Display: {
@@ -119,7 +119,7 @@ export class ShapeConfigService {
       borderColor: '#6d28d9',
       defaultWidth: 150,
       defaultHeight: 90,
-      description: 'Display ou tela',
+      description: 'Display or screen',
       category: 'process'
     },
     Loop: {
@@ -129,7 +129,7 @@ export class ShapeConfigService {
       borderColor: '#b91c1c',
       defaultWidth: 160,
       defaultHeight: 80,
-      description: 'Loop ou repetição',
+      description: 'Loop or iteration',
       category: 'flow'
     },
     Comment: {
@@ -139,13 +139,17 @@ export class ShapeConfigService {
       borderColor: '#f59e0b',
       defaultWidth: 120,
       defaultHeight: 60,
-      description: 'Comentário ou anotação',
+      description: 'Comment or annotation',
       category: 'connector'
     }
   }
 
   static getShapeConfig(type: ShapeType): ShapeTypeConfig {
     return this.SHAPE_CONFIGS[type]
+  }
+
+  static getAllConfigs(): ShapeTypeConfig[] {
+    return Object.values(this.SHAPE_CONFIGS)
   }
 
   static getAllShapeTypes(): ShapeType[] {

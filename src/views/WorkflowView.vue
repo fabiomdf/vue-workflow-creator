@@ -2,33 +2,42 @@
   <div class="workflow-canvas">
     <div class="toolbar">
       <h1>Vue Workflow Creator</h1>
-      <button @click="() => addShape()" class="add-shape-btn">Add Shape</button>
+      <button @click="() => addShape()" class="add-shape-btn">Add Random Shape</button>
       <button @click="() => clearShapes()" class="clear-btn">Clear All</button>
       <span class="shape-count">Shapes: {{ shapes.length }}</span>
     </div>
 
-    <div class="canvas" ref="canvasRef">
-      <DraggableShape v-for="shape in shapes" :key="shape.id" :initial-x="shape.position.x"
-        :initial-y="shape.position.y" :label="shape.label" :width="shape.style.width" :height="shape.style.height"
-        :shape-geometry="shape.geometry || 'rectangle'" :background-color="shape.style.backgroundColor"
-        :border-color="shape.style.borderColor" :border-radius="shape.style.borderRadius" :resizable="true"
-        @drag-start="onShapeDragStart(shape.id, $event)" @drag-move="onShapeDragMove(shape.id, $event)"
-        @drag-end="onShapeDragEnd(shape.id, $event)" @click="onShapeClick(shape.id, $event)"
-        @resize-start="onShapeResizeStart(shape.id, $event)" @resize-move="onShapeResizeMove(shape.id, $event)"
-        @resize-end="onShapeResizeEnd(shape.id, $event)">
-        <div class="custom-shape-content">
-          <div class="shape-title">{{ shape.label }}</div>
-          <div class="shape-subtitle">{{ shape.type }}</div>
-        </div>
-      </DraggableShape>
+    <div class="main-content">
+      <!-- Shape Selector Panel -->
+      <div class="sidebar">
+        <ShapeSelector @shape-selected="onShapeSelected" />
+      </div>
+
+      <!-- Canvas Area -->
+      <div class="canvas" ref="canvasRef">
+        <DraggableShape v-for="shape in shapes" :key="shape.id" :initial-x="shape.position.x"
+          :initial-y="shape.position.y" :label="shape.label" :width="shape.style.width" :height="shape.style.height"
+          :shape-geometry="shape.geometry || 'rectangle'" :background-color="shape.style.backgroundColor"
+          :border-color="shape.style.borderColor" :border-radius="shape.style.borderRadius" :resizable="true"
+          @drag-start="onShapeDragStart(shape.id, $event)" @drag-move="onShapeDragMove(shape.id, $event)"
+          @drag-end="onShapeDragEnd(shape.id, $event)" @click="onShapeClick(shape.id, $event)"
+          @resize-start="onShapeResizeStart(shape.id, $event)" @resize-move="onShapeResizeMove(shape.id, $event)"
+          @resize-end="onShapeResizeEnd(shape.id, $event)">
+          <div class="custom-shape-content">
+            <div class="shape-title">{{ shape.label }}</div>
+            <div class="shape-subtitle">{{ shape.type }}</div>
+          </div>
+        </DraggableShape>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { DraggableShape } from '@/components/shape'
+import { DraggableShape, ShapeSelector } from '@/components/shape'
 import { useWorkflow } from '@/composables/useWorkflow'
+import type { ShapeType } from '@/components/shape/types'
 
 const canvasRef = ref<HTMLElement>()
 
@@ -45,6 +54,13 @@ const {
   clearShapes,
   addRandomShapes
 } = useWorkflow()
+
+// Handle shape selection from the selector
+const onShapeSelected = (shapeType: ShapeType) => {
+  // Add shape at a default position, user can drag it later
+  const position = { x: 200 + Math.random() * 100, y: 100 + Math.random() * 100 }
+  addShape(shapeType, position)
+}
 
 // Add some initial shapes
 addRandomShapes(3)
@@ -109,6 +125,20 @@ addRandomShapes(3)
   color: #64748b;
   font-size: 14px;
   font-weight: 500;
+}
+
+.main-content {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - 80px);
+}
+
+.sidebar {
+  width: 300px;
+  background-color: #f8fafc;
+  border-right: 1px solid #e2e8f0;
+  padding: 16px;
+  overflow-y: auto;
 }
 
 .canvas {
