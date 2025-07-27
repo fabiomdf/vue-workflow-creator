@@ -18,7 +18,7 @@ The Vue Workflow Creator is a visual diagram editor that allows users to:
 
 ## 🎥 Demo
 
-![Vue Workflow Creator Demo](./assets/demo.webm)
+![Vue Workflow Creator Demo](./assets/demo.gif)
 
 _The demo shows the interactive features: creating shapes, dragging them around, resizing, entering anchor mode, and creating connections between shapes._
 
