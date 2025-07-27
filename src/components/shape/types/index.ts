@@ -30,6 +30,7 @@ export interface ResizeState {
     handle: ResizeHandle | null
     startSize: { width: number; height: number }
     startPosition: Position
+    startMousePosition: Position
 }
 
 export type ResizeHandle = 'nw' | 'ne' | 'sw' | 'se' | 'n' | 's' | 'e' | 'w'

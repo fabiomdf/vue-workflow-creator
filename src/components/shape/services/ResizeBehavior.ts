@@ -10,7 +10,8 @@ export class ResizeBehavior implements IResizeBehavior {
             isResizing: false,
             handle: null,
             startSize: { width: 0, height: 0 },
-            startPosition: { x: 0, y: 0 }
+            startPosition: { x: 0, y: 0 },
+            startMousePosition: { x: 0, y: 0 }
         })
     }
 
@@ -23,11 +24,15 @@ export class ResizeBehavior implements IResizeBehavior {
         event.preventDefault()
         event.stopPropagation()
 
+        const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX
+        const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY
+
         this.resizeState.value = {
             isResizing: true,
             handle,
             startSize: { ...currentSize },
-            startPosition: { ...currentPosition }
+            startPosition: { ...currentPosition },
+            startMousePosition: { x: clientX, y: clientY }
         }
 
         return { ...this.resizeState.value }
@@ -50,8 +55,8 @@ export class ResizeBehavior implements IResizeBehavior {
         const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX
         const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY
 
-        const deltaX = clientX - resizeState.startPosition.x
-        const deltaY = clientY - resizeState.startPosition.y
+        const deltaX = clientX - resizeState.startMousePosition.x
+        const deltaY = clientY - resizeState.startMousePosition.y
 
         let newWidth = resizeState.startSize.width
         let newHeight = resizeState.startSize.height

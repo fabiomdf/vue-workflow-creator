@@ -12,24 +12,24 @@
     <!-- Resize handles -->
     <template v-if="resizable && !disabled">
       <!-- Corner handles -->
-      <div class="resize-handle resize-handle-nw" @mousedown="(e) => startResize(e, 'nw')"
-        @touchstart="(e) => startResize(e, 'nw')"></div>
-      <div class="resize-handle resize-handle-ne" @mousedown="(e) => startResize(e, 'ne')"
-        @touchstart="(e) => startResize(e, 'ne')"></div>
-      <div class="resize-handle resize-handle-sw" @mousedown="(e) => startResize(e, 'sw')"
-        @touchstart="(e) => startResize(e, 'sw')"></div>
-      <div class="resize-handle resize-handle-se" @mousedown="(e) => startResize(e, 'se')"
-        @touchstart="(e) => startResize(e, 'se')"></div>
+      <div class="resize-handle resize-handle-nw" @mousedown="(e) => { e.stopPropagation(); startResize(e, 'nw') }"
+        @touchstart="(e) => { e.stopPropagation(); startResize(e, 'nw') }"></div>
+      <div class="resize-handle resize-handle-ne" @mousedown="(e) => { e.stopPropagation(); startResize(e, 'ne') }"
+        @touchstart="(e) => { e.stopPropagation(); startResize(e, 'ne') }"></div>
+      <div class="resize-handle resize-handle-sw" @mousedown="(e) => { e.stopPropagation(); startResize(e, 'sw') }"
+        @touchstart="(e) => { e.stopPropagation(); startResize(e, 'sw') }"></div>
+      <div class="resize-handle resize-handle-se" @mousedown="(e) => { e.stopPropagation(); startResize(e, 'se') }"
+        @touchstart="(e) => { e.stopPropagation(); startResize(e, 'se') }"></div>
 
       <!-- Edge handles -->
-      <div class="resize-handle resize-handle-n" @mousedown="(e) => startResize(e, 'n')"
-        @touchstart="(e) => startResize(e, 'n')"></div>
-      <div class="resize-handle resize-handle-s" @mousedown="(e) => startResize(e, 's')"
-        @touchstart="(e) => startResize(e, 's')"></div>
-      <div class="resize-handle resize-handle-e" @mousedown="(e) => startResize(e, 'e')"
-        @touchstart="(e) => startResize(e, 'e')"></div>
-      <div class="resize-handle resize-handle-w" @mousedown="(e) => startResize(e, 'w')"
-        @touchstart="(e) => startResize(e, 'w')"></div>
+      <div class="resize-handle resize-handle-n" @mousedown="(e) => { e.stopPropagation(); startResize(e, 'n') }"
+        @touchstart="(e) => { e.stopPropagation(); startResize(e, 'n') }"></div>
+      <div class="resize-handle resize-handle-s" @mousedown="(e) => { e.stopPropagation(); startResize(e, 's') }"
+        @touchstart="(e) => { e.stopPropagation(); startResize(e, 's') }"></div>
+      <div class="resize-handle resize-handle-e" @mousedown="(e) => { e.stopPropagation(); startResize(e, 'e') }"
+        @touchstart="(e) => { e.stopPropagation(); startResize(e, 'e') }"></div>
+      <div class="resize-handle resize-handle-w" @mousedown="(e) => { e.stopPropagation(); startResize(e, 'w') }"
+        @touchstart="(e) => { e.stopPropagation(); startResize(e, 'w') }"></div>
     </template>
   </div>
 </template>
