@@ -333,11 +333,6 @@ defineExpose({
 }
 
 /* Anchor mode styling */
-.draggable-shape.anchor-mode {
-  outline: 2px dashed #ef4444;
-  outline-offset: 4px;
-}
-
 .draggable-shape.anchor-mode:hover {
   filter: drop-shadow(0 4px 12px rgba(239, 68, 68, 0.3));
 }
