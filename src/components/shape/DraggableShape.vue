@@ -43,14 +43,15 @@
 
     <!-- Anchor points (only show when in anchor mode) -->
     <template v-if="isAnchorMode">
-      <div class="anchor-point anchor-point-top"></div>
-      <div class="anchor-point anchor-point-right"></div>
-      <div class="anchor-point anchor-point-bottom"></div>
-      <div class="anchor-point anchor-point-left"></div>
+      <div class="anchor-point anchor-point-top" @click.stop="handleAnchorClick('top')"></div>
+      <div class="anchor-point anchor-point-right" @click.stop="handleAnchorClick('right')"></div>
+      <div class="anchor-point anchor-point-bottom" @click.stop="handleAnchorClick('bottom')"></div>
+      <div class="anchor-point anchor-point-left" @click.stop="handleAnchorClick('left')"></div>
     </template>
 
     <!-- Debug info -->
-    <div v-if="true"
+    <!-- Debug info -->
+    <div v-if="false"
       style="position: absolute; top: -30px; left: 0; font-size: 10px; background: yellow; padding: 2px; z-index: 1000;">
       Anchor: {{ isAnchorMode }} | Prop: {{ anchorMode }}
     </div>
@@ -63,6 +64,7 @@ import { useShape } from './composables/useShape'
 import ShapeRenderer from './ShapeRenderer.vue'
 
 const props = withDefaults(defineProps<ShapeProps>(), {
+  id: '',
   initialX: 100,
   initialY: 100,
   label: 'Shape',
@@ -84,7 +86,7 @@ const props = withDefaults(defineProps<ShapeProps>(), {
 const emit = defineEmits<ShapeEvents>()
 
 // Create wrapper function for emit
-const emitWrapper = (event: 'dragStart' | 'dragMove' | 'dragEnd' | 'click' | 'resizeStart' | 'resizeMove' | 'resizeEnd' | 'anchorModeToggle', data: Position | { width: number; height: number } | boolean) => {
+const emitWrapper = (event: 'dragStart' | 'dragMove' | 'dragEnd' | 'click' | 'resizeStart' | 'resizeMove' | 'resizeEnd' | 'anchorModeToggle' | 'anchorClick', data: Position | { width: number; height: number } | boolean | { shapeId: string; anchor: string; position: { x: number; y: number } }) => {
   switch (event) {
     case 'dragStart':
       emit('dragStart', data as Position)
@@ -110,6 +112,10 @@ const emitWrapper = (event: 'dragStart' | 'dragMove' | 'dragEnd' | 'click' | 're
     case 'anchorModeToggle':
       emit('anchorModeToggle', data as boolean)
       break
+    case 'anchorClick':
+      const anchorData = data as { shapeId: string; anchor: string; position: { x: number; y: number } }
+      emit('anchorClick', anchorData.shapeId, anchorData.anchor as 'top' | 'right' | 'bottom' | 'left', anchorData.position)
+      break
   }
 }
 
@@ -125,6 +131,7 @@ const {
   startResize,
   handleClick,
   handleContextMenu,
+  handleAnchorClick,
   setPosition,
   getPosition,
   setSize,
@@ -296,6 +303,8 @@ defineExpose({
   z-index: 15;
   opacity: 1;
   transition: all 0.2s ease;
+  cursor: pointer;
+  pointer-events: auto;
 }
 
 .anchor-point:hover {

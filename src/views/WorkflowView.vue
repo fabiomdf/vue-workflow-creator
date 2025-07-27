@@ -15,7 +15,13 @@
 
       <!-- Canvas Area -->
       <div class="canvas" ref="canvasRef">
-        <DraggableShape v-for="shape in shapes" :key="shape.id" :initial-x="shape.position.x"
+        <!-- Connections Layer -->
+        <ShapeConnector v-for="connection in connections" :key="connection.id" :connection="connection"
+          :source-position="getAnchorPosition(connection.sourceShapeId, connection.sourceAnchor)"
+          :target-position="getAnchorPosition(connection.targetShapeId, connection.targetAnchor)" />
+
+        <!-- Shapes Layer -->
+        <DraggableShape v-for="shape in shapes" :key="shape.id" :id="shape.id" :initial-x="shape.position.x"
           :initial-y="shape.position.y" :label="shape.label" :width="shape.style.width" :height="shape.style.height"
           :shape-geometry="shape.geometry || 'rectangle'" :background-color="shape.style.backgroundColor"
           :border-color="shape.style.borderColor" :border-radius="shape.style.borderRadius" :resizable="true"
@@ -23,7 +29,7 @@
           @drag-end="onShapeDragEnd(shape.id, $event)" @click="onShapeClick(shape.id, $event)"
           @resize-start="onShapeResizeStart(shape.id, $event)" @resize-move="onShapeResizeMove(shape.id, $event)"
           @resize-end="onShapeResizeEnd(shape.id, $event)"
-          @anchor-mode-toggle="onShapeAnchorModeToggle(shape.id, $event)">
+          @anchor-mode-toggle="onShapeAnchorModeToggle(shape.id, $event)" @anchor-click="onShapeAnchorClick">
           <div class="custom-shape-content">
             <div class="shape-title">{{ shape.label }}</div>
             <div class="shape-subtitle">{{ shape.type }}</div>
@@ -36,9 +42,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { DraggableShape, ShapeSelector } from '@/components/shape'
+import { DraggableShape, ShapeSelector, ShapeConnector } from '@/components/shape'
 import { useWorkflow } from '@/composables/useWorkflow'
-import type { ShapeType } from '@/components/shape/types'
+import { useConnections } from '@/composables/useConnections'
+import type { ShapeType, AnchorPoint, ConnectionPoint } from '@/components/shape/types'
 
 const canvasRef = ref<HTMLElement>()
 
@@ -57,11 +64,66 @@ const {
   addRandomShapes
 } = useWorkflow()
 
+const {
+  connections,
+  isConnecting,
+  startConnection,
+  completeConnection
+} = useConnections()
+
 // Handle shape selection from the selector
 const onShapeSelected = (shapeType: ShapeType) => {
   // Add shape at a default position, user can drag it later
   const position = { x: 200 + Math.random() * 100, y: 100 + Math.random() * 100 }
   addShape(shapeType, position)
+}
+
+// Handle anchor clicks for connections
+const onShapeAnchorClick = (shapeId: string, anchor: AnchorPoint, position: ConnectionPoint) => {
+  console.log('🔗 Anchor clicked:', { shapeId, anchor, position })
+
+  if (isConnecting.value) {
+    // Complete the connection
+    completeConnection(shapeId, anchor)
+  } else {
+    // Start a new connection
+    startConnection(shapeId, anchor, position)
+  }
+}
+
+// Get anchor position for a specific shape and anchor point
+const getAnchorPosition = (shapeId: string, anchor: AnchorPoint): ConnectionPoint => {
+  const shape = shapes.value.find(s => s.id === shapeId)
+  if (!shape) {
+    return { x: 0, y: 0 }
+  }
+
+  const { position, style } = shape
+
+  switch (anchor) {
+    case 'top':
+      return {
+        x: position.x + style.width / 2,
+        y: position.y
+      }
+    case 'right':
+      return {
+        x: position.x + style.width,
+        y: position.y + style.height / 2
+      }
+    case 'bottom':
+      return {
+        x: position.x + style.width / 2,
+        y: position.y + style.height
+      }
+    case 'left':
+      return {
+        x: position.x,
+        y: position.y + style.height / 2
+      }
+    default:
+      return { x: position.x, y: position.y }
+  }
 }
 
 // Add some initial shapes

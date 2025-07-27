@@ -9,7 +9,7 @@ import type { IDragBehavior, IResizeBehavior, IPositionManager, ISizeManager, IE
 
 export function useShape(
   props: ShapeProps,
-  emit: (event: 'dragStart' | 'dragMove' | 'dragEnd' | 'click' | 'resizeStart' | 'resizeMove' | 'resizeEnd' | 'anchorModeToggle', data: Position | { width: number; height: number } | boolean) => void
+  emit: (event: 'dragStart' | 'dragMove' | 'dragEnd' | 'click' | 'resizeStart' | 'resizeMove' | 'resizeEnd' | 'anchorModeToggle' | 'anchorClick', data: Position | { width: number; height: number } | boolean | { shapeId: string; anchor: string; position: { x: number; y: number } }) => void
 ) {
   // Initialize services
   const positionManager: IPositionManager = new PositionManager({
@@ -189,6 +189,54 @@ export function useShape(
     emit('anchorModeToggle', isAnchorMode.value)
   }
 
+  const handleAnchorClick = (anchor: 'top' | 'right' | 'bottom' | 'left') => {
+    if (!props.id) {
+      console.warn('Shape ID is required for anchor connections')
+      return
+    }
+
+    // Calculate anchor position relative to the shape
+    const shapePos = positionManager.getPosition()
+    const shapeSize = sizeManager.getSize()
+
+    let anchorPosition = { x: 0, y: 0 }
+
+    switch (anchor) {
+      case 'top':
+        anchorPosition = {
+          x: shapePos.x + shapeSize.width / 2,
+          y: shapePos.y
+        }
+        break
+      case 'right':
+        anchorPosition = {
+          x: shapePos.x + shapeSize.width,
+          y: shapePos.y + shapeSize.height / 2
+        }
+        break
+      case 'bottom':
+        anchorPosition = {
+          x: shapePos.x + shapeSize.width / 2,
+          y: shapePos.y + shapeSize.height
+        }
+        break
+      case 'left':
+        anchorPosition = {
+          x: shapePos.x,
+          y: shapePos.y + shapeSize.height / 2
+        }
+        break
+    }
+
+    console.log(`🔗 Anchor clicked: ${anchor} on shape ${props.id}`, anchorPosition)
+
+    emit('anchorClick', {
+      shapeId: props.id,
+      anchor,
+      position: anchorPosition
+    })
+  }
+
   // Cleanup on unmount
   onUnmounted(() => {
     dragBehavior.cleanup()
@@ -230,6 +278,7 @@ export function useShape(
     handleClick,
     handleContextMenu,
     toggleAnchorMode,
+    handleAnchorClick,
 
     // Methods
     setPosition,

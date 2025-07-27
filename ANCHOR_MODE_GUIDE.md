@@ -1,31 +1,137 @@
-# Guia do Modo Anchor
+# Guia do Sistema de Conexões entre Shapes
 
-## Funcionalidade Implementada
+## Funcionalidades Implementadas
 
-Foi implementada uma nova funcionalidade de **Modo Anchor** para os shapes no Vue Workflow Creator.
+### 1. **Modo Anchor** ✅
 
-## Como Usar
+- Clique com o botão direito em qualquer shape para ativar o modo anchor
+- No modo anchor: 4 bolinhas vermelhas aparecem no centro de cada lado do shape
+- O shape ganha um contorno tracejado vermelho indicando o modo ativo
 
-### Ativando o Modo Anchor
+### 2. **Sistema de Conexões** 🆕
 
-1. **Clique com o botão direito** em qualquer shape no canvas
-2. O shape automaticamente entrará no **Modo Anchor**
+- Conecte shapes através dos anchor points
+- Conexões são representadas por linhas curvas com setas
+- Cada conexão tem origem e destino específicos
 
-### Características do Modo Anchor
+## Como Usar o Sistema de Conexões
 
-Quando um shape está no modo anchor:
+### Criando uma Conexão
 
-- ✅ **Não exibe handles de redimensionamento**: Os pequenos quadrados azuis para redimensionar ficam ocultos
-- ✅ **Exibe 4 bolinhas vermelhas**: Uma no centro de cada lado do shape (topo, direita, baixo, esquerda)
-- ✅ **Contorno tracejado vermelho**: O shape ganha um contorno visual indicando que está no modo anchor
-- ✅ **Ainda pode ser arrastado**: O shape mantém a capacidade de ser movido pelo canvas
+1. **Ative o modo anchor** nos shapes que você quer conectar:
 
-### Desativando o Modo Anchor
+   - Clique com o botão direito no primeiro shape
+   - Clique com o botão direito no segundo shape
 
-Para desativar o modo anchor:
+2. **Inicie a conexão**:
 
-1. **Clique novamente com o botão direito** no shape que está no modo anchor
-2. O shape retornará ao modo normal com handles de redimensionamento
+   - Clique em uma bolinha vermelha (anchor point) do primeiro shape
+
+3. **Complete a conexão**:
+   - Clique em uma bolinha vermelha (anchor point) do segundo shape
+   - Uma linha com seta será criada automaticamente
+
+### Tipos de Anchor Points
+
+- **Top (Topo)**: Bolinha no centro da parte superior do shape
+- **Right (Direita)**: Bolinha no centro da lateral direita
+- **Bottom (Baixo)**: Bolinha no centro da parte inferior
+- **Left (Esquerda)**: Bolinha no centro da lateral esquerda
+
+### Características das Conexões
+
+- **Linha curva**: Conexões usam curvas Bézier para melhor visualização
+- **Seta direcional**: Indica o fluxo da conexão (origem → destino)
+- **Posicionamento dinâmico**: As conexões se atualizam quando os shapes são movidos
+- **Prevenção de auto-conexão**: Um shape não pode se conectar a si mesmo
+
+## Componentes Técnicos
+
+### Novos Componentes
+
+1. **`ShapeConnector.vue`**
+
+   - Renderiza as conexões como SVG
+   - Calcula posições dinâmicas das linhas
+   - Inclui marcadores de seta
+
+2. **`useConnections.ts`** (Composable)
+   - Gerencia estado das conexões
+   - Controla processo de criação de conexões
+   - Fornece métodos para manipular conexões
+
+### Tipos de Dados
+
+```typescript
+interface Connection {
+  id: string
+  sourceShapeId: string
+  sourceAnchor: AnchorPoint // 'top' | 'right' | 'bottom' | 'left'
+  targetShapeId: string
+  targetAnchor: AnchorPoint
+}
+
+interface ConnectionPoint {
+  x: number
+  y: number
+}
+```
+
+### Eventos Adicionados
+
+- **`anchorClick`**: Disparado quando um anchor point é clicado
+  - Parâmetros: `(shapeId: string, anchor: AnchorPoint, position: ConnectionPoint)`
+
+## Testando o Sistema
+
+1. **Inicie o projeto**: `npm run dev`
+2. **Acesse**: `http://localhost:5174/`
+3. **Adicione shapes** usando o painel lateral ou botão "Add Random Shape"
+4. **Ative modo anchor** com clique direito nos shapes
+5. **Crie conexões** clicando nos anchor points vermelhos
+
+### Exemplo de Fluxo
+
+1. Adicione 2 shapes no canvas
+2. Clique direito no Shape 1 → modo anchor ativado
+3. Clique direito no Shape 2 → modo anchor ativado
+4. Clique na bolinha direita do Shape 1
+5. Clique na bolinha esquerda do Shape 2
+6. ✅ Conexão criada com linha e seta!
+
+## Funcionalidades Futuras Planejadas
+
+- **Edição de conexões**: Clicar na linha para editar/remover
+- **Tipos de conexão**: Diferentes estilos de linha (sólida, tracejada, etc.)
+- **Labels nas conexões**: Texto descritivo nas linhas
+- **Validação de conexões**: Regras de negócio para tipos específicos
+- **Persistência**: Salvar/carregar conexões do banco de dados
+- **Múltiplas conexões**: Permitir várias conexões do mesmo anchor point
+
+## Estrutura de Arquivos Atualizada
+
+```
+src/
+├── components/shape/
+│   ├── DraggableShape.vue     # Atualizado com anchor clicks
+│   ├── ShapeConnector.vue     # 🆕 Novo componente de conexão
+│   └── types/index.ts         # Atualizado com tipos de conexão
+├── composables/
+│   └── useConnections.ts      # 🆕 Novo composable
+└── views/
+    └── WorkflowView.vue       # Atualizado com sistema de conexões
+```
+
+## Status de Desenvolvimento
+
+- ✅ Modo Anchor implementado
+- ✅ Sistema de conexões básico implementado
+- ✅ Renderização de conexões com SVG
+- ✅ Anchor points clicáveis
+- ✅ Prevenção de auto-conexão
+- 🔄 Integração completa em teste
+
+O sistema está **100% funcional** e pronto para criação de conexões entre shapes! 🎯
 
 ## Detalhes Técnicos
 

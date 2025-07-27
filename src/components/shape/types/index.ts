@@ -37,7 +37,29 @@ export interface ResizeState {
 
 export type ResizeHandle = 'nw' | 'ne' | 'sw' | 'se' | 'n' | 's' | 'e' | 'w'
 
+export type AnchorPoint = 'top' | 'right' | 'bottom' | 'left'
+
+export interface Connection {
+  id: string
+  sourceShapeId: string
+  sourceAnchor: AnchorPoint
+  targetShapeId: string
+  targetAnchor: AnchorPoint
+}
+
+export interface ConnectionPoint {
+  x: number
+  y: number
+}
+
+export interface ShapeConnectionData {
+  shapeId: string
+  anchor: AnchorPoint
+  position: ConnectionPoint
+}
+
 export interface ShapeProps {
+  id?: string
   initialX?: number
   initialY?: number
   label?: string
@@ -65,6 +87,7 @@ export interface ShapeEvents {
   resizeMove: [size: { width: number; height: number }]
   resizeEnd: [size: { width: number; height: number }]
   anchorModeToggle: [anchorMode: boolean]
+  anchorClick: [shapeId: string, anchor: AnchorPoint, position: ConnectionPoint]
 }
 
 // Workflow shape types (business logic)
