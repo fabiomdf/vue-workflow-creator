@@ -43,6 +43,12 @@ export function useWorkflow() {
     console.log(`Shape ${shapeId} resize ended:`, size)
   }
 
+  const onShapeAnchorModeToggle = (shapeId: string, anchorMode: boolean) => {
+    console.log(`Shape ${shapeId} anchor mode toggled:`, anchorMode)
+    // Aqui você pode adicionar lógica adicional para quando o anchor mode for alterado
+    // Por exemplo, salvar o estado, atualizar outras propriedades, etc.
+  }
+
   // Actions
   const addShape = (type?: ShapeType, position?: Position) => {
     return workflowService.addShape(type, position)
@@ -72,6 +78,7 @@ export function useWorkflow() {
     onShapeResizeStart,
     onShapeResizeMove,
     onShapeResizeEnd,
+    onShapeAnchorModeToggle,
 
     // Actions
     addShape,

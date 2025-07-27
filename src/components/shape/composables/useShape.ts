@@ -1,4 +1,4 @@
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, computed, onUnmounted, watch } from 'vue'
 import type { Position, ShapeProps, ResizeHandle } from '../types'
 import { DragBehavior } from '../services/DragBehavior'
 import { ResizeBehavior } from '../services/ResizeBehavior'
@@ -9,7 +9,7 @@ import type { IDragBehavior, IResizeBehavior, IPositionManager, ISizeManager, IE
 
 export function useShape(
   props: ShapeProps,
-  emit: (event: 'dragStart' | 'dragMove' | 'dragEnd' | 'click' | 'resizeStart' | 'resizeMove' | 'resizeEnd', data: Position | { width: number; height: number }) => void
+  emit: (event: 'dragStart' | 'dragMove' | 'dragEnd' | 'click' | 'resizeStart' | 'resizeMove' | 'resizeEnd' | 'anchorModeToggle', data: Position | { width: number; height: number } | boolean) => void
 ) {
   // Initialize services
   const positionManager: IPositionManager = new PositionManager({
@@ -41,6 +41,12 @@ export function useShape(
   const isResizing = computed(() => resizeBehavior.isResizing)
   const position = computed(() => positionManager.getPosition())
   const size = computed(() => sizeManager.getSize())
+  const isAnchorMode = ref(props.anchorMode || false)
+
+  // Watch for changes in anchor mode
+  watch(isAnchorMode, (newValue, oldValue) => {
+    console.log('🔄 isAnchorMode watcher triggered:', { oldValue, newValue })
+  }, { immediate: true })
 
   // Style management
   const shapeStyle = computed(() => ({
@@ -54,7 +60,15 @@ export function useShape(
 
   // Drag handling
   const startDrag = (event: MouseEvent | TouchEvent) => {
+    // Ignore right clicks for drag
+    if (event instanceof MouseEvent && event.button === 2) {
+      console.log('🚫 Ignoring right click for drag')
+      return
+    }
+
     if (props.disabled || isResizing.value) return
+
+    console.log('👆 Starting drag with button:', event instanceof MouseEvent ? event.button : 'touch')
 
     const currentPosition = positionManager.getPosition()
     const dragState = dragBehavior.startDrag(event, currentPosition)
@@ -142,9 +156,37 @@ export function useShape(
   }
 
   const handleClick = () => {
+    console.log('👆 Left click detected')
     if (!isDragging.value && !isResizing.value && !props.disabled) {
       eventHandler.onClick(positionManager.getPosition())
     }
+  }
+
+  const handleContextMenu = () => {
+    console.log('🖱️ RIGHT CLICK DETECTED!')
+    console.log('Current isAnchorMode.value:', isAnchorMode.value)
+    console.log('Current props.anchorMode:', props.anchorMode)
+    console.log('Conditions check:', {
+      isDragging: isDragging.value,
+      isResizing: isResizing.value,
+      disabled: props.disabled
+    })
+
+    if (!isDragging.value && !isResizing.value && !props.disabled) {
+      const newValue = !isAnchorMode.value
+      console.log('✅ Changing anchor mode from', isAnchorMode.value, 'to:', newValue)
+      isAnchorMode.value = newValue
+      console.log('After assignment, isAnchorMode.value is now:', isAnchorMode.value)
+      emit('anchorModeToggle', newValue)
+      console.log('Emitted anchorModeToggle with value:', newValue)
+    } else {
+      console.log('❌ Cannot toggle - conditions not met')
+    }
+  }
+
+  const toggleAnchorMode = () => {
+    isAnchorMode.value = !isAnchorMode.value
+    emit('anchorModeToggle', isAnchorMode.value)
   }
 
   // Cleanup on unmount
@@ -180,11 +222,14 @@ export function useShape(
     isDragging,
     isResizing,
     shapeStyle,
+    isAnchorMode,
 
     // Event handlers
     startDrag,
     startResize,
     handleClick,
+    handleContextMenu,
+    toggleAnchorMode,
 
     // Methods
     setPosition,

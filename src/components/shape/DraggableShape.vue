@@ -1,6 +1,8 @@
 <template>
-  <div ref="shapeElement" class="draggable-shape" :class="{ dragging: isDragging, resizing: isResizing }"
-    :style="shapeStyle" @mousedown="startDrag" @touchstart="startDrag" @click="handleClick">
+  <div ref="shapeElement" class="draggable-shape"
+    :class="{ dragging: isDragging, resizing: isResizing, 'anchor-mode': isAnchorMode }" :style="shapeStyle"
+    @contextmenu.prevent.stop="handleContextMenu" @mousedown.left="startDrag" @touchstart="startDrag"
+    @click.left="handleClick">
 
     <!-- Shape Renderer -->
     <ShapeRenderer :geometry="shapeGeometry || 'rectangle'" :width="size.width" :height="size.height"
@@ -16,8 +18,8 @@
       </slot>
     </div>
 
-    <!-- Resize handles -->
-    <template v-if="resizable && !disabled">
+    <!-- Resize handles (only show when not in anchor mode) -->
+    <template v-if="resizable && !disabled && !isAnchorMode">
       <!-- Corner handles -->
       <div class="resize-handle resize-handle-nw" @mousedown="(e) => { e.stopPropagation(); startResize(e, 'nw') }"
         @touchstart="(e) => { e.stopPropagation(); startResize(e, 'nw') }"></div>
@@ -38,6 +40,20 @@
       <div class="resize-handle resize-handle-w" @mousedown="(e) => { e.stopPropagation(); startResize(e, 'w') }"
         @touchstart="(e) => { e.stopPropagation(); startResize(e, 'w') }"></div>
     </template>
+
+    <!-- Anchor points (only show when in anchor mode) -->
+    <template v-if="isAnchorMode">
+      <div class="anchor-point anchor-point-top"></div>
+      <div class="anchor-point anchor-point-right"></div>
+      <div class="anchor-point anchor-point-bottom"></div>
+      <div class="anchor-point anchor-point-left"></div>
+    </template>
+
+    <!-- Debug info -->
+    <div v-if="true"
+      style="position: absolute; top: -30px; left: 0; font-size: 10px; background: yellow; padding: 2px; z-index: 1000;">
+      Anchor: {{ isAnchorMode }} | Prop: {{ anchorMode }}
+    </div>
   </div>
 </template>
 
@@ -61,13 +77,14 @@ const props = withDefaults(defineProps<ShapeProps>(), {
   minWidth: 50,
   minHeight: 30,
   maxWidth: 500,
-  maxHeight: 300
+  maxHeight: 300,
+  anchorMode: false
 })
 
 const emit = defineEmits<ShapeEvents>()
 
 // Create wrapper function for emit
-const emitWrapper = (event: 'dragStart' | 'dragMove' | 'dragEnd' | 'click' | 'resizeStart' | 'resizeMove' | 'resizeEnd', data: Position | { width: number; height: number }) => {
+const emitWrapper = (event: 'dragStart' | 'dragMove' | 'dragEnd' | 'click' | 'resizeStart' | 'resizeMove' | 'resizeEnd' | 'anchorModeToggle', data: Position | { width: number; height: number } | boolean) => {
   switch (event) {
     case 'dragStart':
       emit('dragStart', data as Position)
@@ -90,6 +107,9 @@ const emitWrapper = (event: 'dragStart' | 'dragMove' | 'dragEnd' | 'click' | 're
     case 'resizeEnd':
       emit('resizeEnd', data as { width: number; height: number })
       break
+    case 'anchorModeToggle':
+      emit('anchorModeToggle', data as boolean)
+      break
   }
 }
 
@@ -100,9 +120,11 @@ const {
   isDragging,
   isResizing,
   shapeStyle,
+  isAnchorMode,
   startDrag,
   startResize,
   handleClick,
+  handleContextMenu,
   setPosition,
   getPosition,
   setSize,
@@ -261,5 +283,58 @@ defineExpose({
 
 .draggable-shape.resizing .resize-handle {
   opacity: 1;
+}
+
+/* Anchor points */
+.anchor-point {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: #ef4444;
+  border: 2px solid #dc2626;
+  border-radius: 50%;
+  z-index: 15;
+  opacity: 1;
+  transition: all 0.2s ease;
+}
+
+.anchor-point:hover {
+  background-color: #dc2626;
+  transform: scale(1.2);
+}
+
+/* Anchor point positions - center of each edge */
+.anchor-point-top {
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.anchor-point-right {
+  top: 50%;
+  right: -6px;
+  transform: translateY(-50%);
+}
+
+.anchor-point-bottom {
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.anchor-point-left {
+  top: 50%;
+  left: -6px;
+  transform: translateY(-50%);
+}
+
+/* Anchor mode styling */
+.draggable-shape.anchor-mode {
+  outline: 2px dashed #ef4444;
+  outline-offset: 4px;
+}
+
+.draggable-shape.anchor-mode:hover {
+  filter: drop-shadow(0 4px 12px rgba(239, 68, 68, 0.3));
 }
 </style>

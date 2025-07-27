@@ -22,7 +22,8 @@
           @drag-start="onShapeDragStart(shape.id, $event)" @drag-move="onShapeDragMove(shape.id, $event)"
           @drag-end="onShapeDragEnd(shape.id, $event)" @click="onShapeClick(shape.id, $event)"
           @resize-start="onShapeResizeStart(shape.id, $event)" @resize-move="onShapeResizeMove(shape.id, $event)"
-          @resize-end="onShapeResizeEnd(shape.id, $event)">
+          @resize-end="onShapeResizeEnd(shape.id, $event)"
+          @anchor-mode-toggle="onShapeAnchorModeToggle(shape.id, $event)">
           <div class="custom-shape-content">
             <div class="shape-title">{{ shape.label }}</div>
             <div class="shape-subtitle">{{ shape.type }}</div>
@@ -50,6 +51,7 @@ const {
   onShapeResizeStart,
   onShapeResizeMove,
   onShapeResizeEnd,
+  onShapeAnchorModeToggle,
   addShape,
   clearShapes,
   addRandomShapes

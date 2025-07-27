@@ -53,6 +53,7 @@ export interface ShapeProps {
   maxWidth?: number
   maxHeight?: number
   shapeGeometry?: ShapeGeometry
+  anchorMode?: boolean
 }
 
 export interface ShapeEvents {
@@ -63,6 +64,7 @@ export interface ShapeEvents {
   resizeStart: [size: { width: number; height: number }]
   resizeMove: [size: { width: number; height: number }]
   resizeEnd: [size: { width: number; height: number }]
+  anchorModeToggle: [anchorMode: boolean]
 }
 
 // Workflow shape types (business logic)
