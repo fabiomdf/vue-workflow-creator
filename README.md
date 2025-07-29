@@ -22,30 +22,6 @@ The Vue Workflow Creator is a visual diagram editor that allows users to:
 
 _The demo shows the interactive features: creating shapes, dragging them around, resizing, entering anchor mode, and creating connections between shapes._
 
-## 🏗️ Architecture
-
-This project implements **Vertical Sliced Architecture** (Feature-Based Architecture) with the following structure:
-
-```
-src/
-├── features/           # Business-focused features
-│   ├── shapes/        # Shape management (creation, interaction, rendering)
-│   ├── connections/   # Connection system between shapes
-│   ├── canvas/        # Workspace and grid system
-│   └── toolbar/       # Application toolbar
-├── shared/            # Shared utilities and types
-├── app/               # Application orchestration
-└── components/        # Legacy shape renderer components
-```
-
-### Key Architectural Patterns Demonstrated
-
-- **Feature-Based Architecture**: Organizing code by business capabilities rather than technical layers
-- **Composable Pattern**: Vue 3 composition API for reusable logic
-- **State Management**: Pinia stores for reactive state management
-- **Component Communication**: Event-driven communication between features
-- **TypeScript Integration**: Full type safety across the application
-
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -150,12 +126,6 @@ This study application demonstrates several complex frontend development concept
 - Full type safety for component props and events
 - Type-safe store definitions and actions
 - Interface design for complex data structures
-
-### 5. **Architecture Patterns**
-
-- Vertical Sliced Architecture implementation
-- Feature-based code organization
-- Separation of concerns between UI and business logic
 
 ## 🔧 Technical Features
 
